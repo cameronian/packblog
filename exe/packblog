@@ -1,0 +1,106 @@
+#!/usr/bin/env ruby
+
+require 'tty/prompt'
+
+require_relative '../lib/packblog'
+
+pmt = TTY::Prompt.new
+
+pmt.ok "Packblog client V#{Packblog::VERSION}"
+
+begin
+
+  md = pmt.ask "Please provide the Markdown file:", required: true do |q|
+    q.validate -> (path) { 
+      ppath = File.expand_path(path)
+      File.exist?(ppath) 
+    }
+    q.messages[:valid?] = "Given file '%{value}' does not exist"
+  end
+
+  update = false
+  case md
+  when /.brec$/, /.brec.bak$/
+    # update
+    update = pmt.yes? "Is that you want to update the old post '#{md}'? "
+  end
+
+
+  if update
+    pbe, pdat = PackblogEngine.parse_blog_record(File.read(md))
+
+    umd = pmt.ask "Please provide the updated Markdown file for post title '#{pbe.title}' :", required: true do |q|
+      q.validate -> (path) { 
+        ppath = File.expand_path(path)
+        File.exist?(ppath) 
+      }
+      q.messages[:valid?] = "Given file '%{value}' does not exist"
+    end
+
+    pbe.markdown = umd
+
+    out = pmt.ask "Output file (Please note the existing file with same name shall be overriden!) : " do |q|
+      q.default "#{File.basename(umd)}.brec"
+    end
+
+    out ||= "#{File.basename(umd)}.brec"
+
+    File.open(out,"wb") do |f|
+      res = pbe.generate do |ops, val|
+        case ops
+        when :publish_at
+          pmt.ask "Publish at (dd/MMM/yyyy HH:mm) : "
+        when :post_id
+          pdat[:pid]
+        when :created_at
+          pdat[:created_at]
+        when :author
+          pmt.ask "Author : ", required: true
+        when :snippet
+          pmt.ask "Snippet :"
+        end
+      end
+
+      f.write res
+
+      pmt.ok "Updated blog record generated at #{out}"
+    end
+
+  else
+    pbe = PackblogEngine.load_markdown(md)
+    pbe.markdown = md
+    pbe.title = pmt.ask("Title of the post :", required: true)
+    pbe.sub_title = pmt.ask "Sub title of the post :"
+    pbe.tag_css_class = pmt.ask "CSS class name for tag : "
+
+    out = pmt.ask "Output file : " do |q|
+      q.default "#{File.basename(md)}.brec"
+    end
+
+    out ||= "#{File.basename(md)}.brec"
+
+    File.open(out,"wb") do |f|
+      res = pbe.generate do |ops, val|
+        case ops
+        when :publish_at
+          pmt.ask "Publish at (dd/MMM/yyyy HH:mm) : "
+        when :author
+          pmt.ask "Author : ", required: true
+        when :snippet
+          pmt.ask "Snippet :"
+        end
+      end
+
+      f.write res
+
+      pmt.ok "New blog record generated at #{out}"
+    end
+  end
+
+rescue TTY::Reader::InputInterrupt
+  pmt.ok "\nAborted"
+rescue Exception => ex
+  pmt.error "\nException: #{ex.message}"
+  pmt.error ex.backtrace.join("\n")
+end
+
