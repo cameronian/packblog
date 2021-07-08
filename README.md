@@ -1,8 +1,8 @@
 # Packblog
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/packblog`. To experiment with that code, run `bin/console` for an interactive prompt.
+Packblog is meant to provide client to publish blog post of Markdown to [SRBlog engine](https://github.com/cameronian/SRBlog).
 
-TODO: Delete this and the text above, and describe your gem
+Packblog support images and tagging to the Markdown post and this client shall package it in the single JSON file to be uploaded to the SRBlog engine
 
 ## Installation
 
@@ -22,22 +22,35 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Packblog is meant to be run in command line. 
 
-## Development
+> packblog
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+Write the normal Markdown content, with two custom fields:
+* Whenever Packblog see '<%= tag 'xxx', 'yyy' %>', it will be ignored in Markdown file but it will be tagged inside the Packblog JSON format. SRBlog engine shall link the tag with blog post when it is being parsed later.
+* Whenever Packblog see '<%= image 'xxxx.png' %>', it will find the xxxx.png at the same directory as the Markdown file and convert that into public images that is able to load at SRBlog engine.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Packblog is developed in Ruby so yeah, it is ERB template format.
 
-## Contributing
+The rest of the Markdown is standard and it is now using [Redcarpet](https://github.com/vmg/redcarpet) to parse the Markdown file.
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/packblog. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/packblog/blob/master/CODE_OF_CONDUCT.md).
+Example output
+```sh
+> packblog
+
+Packblog client V0.0.15
+Please provide the Markdown file: mypost.md   <-- This must be in current directory
+Title of the post : Main Title                <-- This shall be the main title
+Sub title of the post : Sub Title             <-- This shall be the sub title
+CSS class name for tag :                      <-- This is the CSS class name of the tag. Very likely shall be gone in next cycle
+Output file :  mypost.md.brec                 <-- System shall prompt for output file 
+Publish at (dd/MMM/yyyy HH:mm) :              <-- Ignore this first this is not parsed
+Author :  Ian                                 <-- Author of the post
+New blog record generated at mypost.md.brec
+```
+
 
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
-## Code of Conduct
-
-Everyone interacting in the Packblog project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/packblog/blob/master/CODE_OF_CONDUCT.md).
