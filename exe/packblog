@@ -15,7 +15,8 @@ begin
       ppath = File.expand_path(path)
       File.exist?(ppath) 
     }
-    q.messages[:valid?] = "Given file '%{value}' does not exist"
+    #q.messages[:valid?] = "Given file '%{value}' does not exist"
+    q.messages[:valid?] = "Given file does not exist"
   end
 
   update = false
@@ -34,7 +35,8 @@ begin
         ppath = File.expand_path(path)
         File.exist?(ppath) 
       }
-      q.messages[:valid?] = "Given file '%{value}' does not exist"
+      #q.messages[:valid?] = "Given file '%{value}' does not exist"
+      q.messages[:valid?] = "Given file does not exist"
     end
 
     pbe.markdown = umd

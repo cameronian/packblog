@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
   #spec.add_dependency "redcarpet"
   spec.add_dependency "toolrack"
   spec.add_dependency "tty-prompt"
+  spec.add_dependency 'devops_helper'
 
   spec.add_development_dependency 'redcarpet'
 

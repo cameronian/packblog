@@ -38,7 +38,10 @@ module Packblog
     res.join(" ")
   end
 
-  def convert_image(path)
+  def convert_image(*args)
+    path = args.first
+    ops = args[1] || { }
+
     if not_empty?(path)
       path = File.expand_path(path) 
       raise Error, "Given image '#{path}' not available" if not File.exist?(path) 
@@ -46,7 +49,7 @@ module Packblog
       File.open(path,'rb') do |f|
         img = f.read
       end
-      { name: File.basename(path), image: Base64.strict_encode64(img) }
+      { name: File.basename(path), image: Base64.strict_encode64(img) }.merge(ops)
     end
   end
 
@@ -58,6 +61,7 @@ class PackblogEngine
   extend ToolRack::ConditionUtils
 
   attr_accessor :tag_css_class, :title, :sub_title
+  attr_reader :tags
   def self.load_markdown(path)
     raise Error, "Load markdown file with empty path" if is_empty?(path)
     raise Error, "Markdown file is not given" if is_empty?(path)
@@ -108,8 +112,8 @@ class PackblogEngine
     res
   end
 
-  def image(path)
-    @images << convert_image(path)
+  def image(*args)
+    @images << convert_image(*args)
     "![images](/uploads/#{@images.last[:name]})"
   end
 
@@ -121,15 +125,16 @@ class PackblogEngine
     res = { }
     res[:title] = @title
     res[:sub_title] = @sub_title
+    res[:tags] = @tags
     # render method from Packblog module shall render the @markdown
     res[:post] = render
     res[:images] = @images
 
     if block
-      res[:publish_at] = block.call(:publish_at)
-      res[:created_at] = block.call(:created_at)
-      res[:pid] = block.call(:post_id)
-      res[:author] = block.call(:author)
+      res[:publish_at] = block.call(:publish_at) || Time.now.to_i
+      res[:created_at] = block.call(:created_at) || Time.now.to_i
+      res[:pid] = block.call(:post_id) || SecureRandom.uuid
+      res[:author] = block.call(:author) || "Nobody"
       #res[:snippet] = block.call(:snippet)
     else
       # reverse Time.at(i)
