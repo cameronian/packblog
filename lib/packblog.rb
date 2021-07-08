@@ -162,7 +162,7 @@ class PackblogEngine
       res << "[\##{tag}](/posts/tag?tid=#{tagId}/)"
       res << "</span>"
     else
-      "[\##{tag}](/posts/tag?id=#{tagId}/)"
+      "[\##{tag}](/posts/tag?tid=#{tagId}/)"
     end
   end
 
