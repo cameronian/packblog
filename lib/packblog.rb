@@ -89,8 +89,8 @@ class PackblogEngine
     dat[:publish_at] = rec["publish_at"]
     dat[:created_at] = rec["created_at"]
     dat[:updated_at] = rec["updated_at"]
-    dat[:author] = rec[:author]
-    dat[:snippet] = rec[:snippet]
+    dat[:author] = rec["author"]
+    dat[:snippet] = rec["snippet"]
     dat[:pid] = rec["pid"]
 
     [pbe,dat]
@@ -108,9 +108,9 @@ class PackblogEngine
       end
     end
 
-    @tags += args
     res
   end
+  alias_method :tag, :tags
 
   def image(*args)
     @images << convert_image(*args)
@@ -125,16 +125,16 @@ class PackblogEngine
     res = { }
     res[:title] = @title
     res[:sub_title] = @sub_title
-    res[:tags] = @tags
     # render method from Packblog module shall render the @markdown
     res[:post] = render
+    res[:tags] = @tags
     res[:images] = @images
 
     if block
       res[:publish_at] = block.call(:publish_at) || Time.now.to_i
       res[:created_at] = block.call(:created_at) || Time.now.to_i
       res[:pid] = block.call(:post_id) || SecureRandom.uuid
-      res[:author] = block.call(:author) || "Nobody"
+      res[:author] = block.call(:author) 
       #res[:snippet] = block.call(:snippet)
     else
       # reverse Time.at(i)
@@ -155,10 +155,11 @@ class PackblogEngine
   def to_tagged_path(tag)
     tagId = tag.downcase
     tagId.gsub!(" ","_")
+    @tags << tagId
     if not_empty?(@tag_css_class)
       res = []
       res << "<span class=\"#{@tag_css_class}\">"
-      res << "[\##{tag}](/posts/tag?id=#{tagId}/)"
+      res << "[\##{tag}](/posts/tag?tid=#{tagId}/)"
       res << "</span>"
     else
       "[\##{tag}](/posts/tag?id=#{tagId}/)"

@@ -30,6 +30,10 @@ begin
   if update
     pbe, pdat = PackblogEngine.parse_blog_record(File.read(md))
 
+    pbe.title = pmt.ask("Title of the post :", default: pbe.title)
+    pbe.sub_title = pmt.ask("Sub title of the post :", default: pbe.sub_title)
+    pbe.tag_css_class = pmt.ask("CSS class name for tag : ", default: pbe.tag_css_class)
+
     umd = pmt.ask "Please provide the updated Markdown file for post title '#{pbe.title}' :", required: true do |q|
       q.validate -> (path) { 
         ppath = File.expand_path(path)
@@ -57,7 +61,7 @@ begin
         when :created_at
           pdat[:created_at]
         when :author
-          pmt.ask "Author : ", required: true
+          pmt.ask "Author : ", default: pdat[:author]
         when :snippet
           pmt.ask "Snippet :"
         end
