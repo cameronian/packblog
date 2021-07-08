@@ -159,10 +159,10 @@ class PackblogEngine
     if not_empty?(@tag_css_class)
       res = []
       res << "<span class=\"#{@tag_css_class}\">"
-      res << "[\##{tag}](/posts/tag?tid=#{tagId}/)"
+      res << "[\##{tag}](/posts/tag?tid=#{tagId})"
       res << "</span>"
     else
-      "[\##{tag}](/posts/tag?tid=#{tagId}/)"
+      "[\##{tag}](/posts/tag?tid=#{tagId})"
     end
   end
 
